@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/timer_ic",
+            "type": "cortex-debug",
+            "name": "Debug with ST-Link",
+            "request": "launch",
+            // "runToEntryPoint": "main",
+            "device": "STM32G030",
+            "servertype": "stlink",
+            "preLaunchTask": "debug",
+            "showDevDebugOutput": "none",
+            "svdFile": "${workspaceFolder}/svd/STM32G030.svd",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            },
+        },
+        {
+            "name": "Debug with OpenOCD",
+            "executable": "${workspaceFolder}/build/timer_ic",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "STM32G030",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "debug",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            },
+            // "runToEntryPoint": "main",
+            "request": "launch",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32g0x.cfg"
+            ],
+            "svdFile": "${workspaceFolder}/svd/STM32G030.svd",
+            "showDevDebugOutput": "none",
+        }
+    ]
+}
