@@ -11,7 +11,6 @@ int main()
 
   GPIO_PA11_Init();
   InitTimerIcMode();
-  HAL_Delay(1000);
 
   while (1)
   {
