@@ -29,7 +29,6 @@ void GPIO_PA11_Init()
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM1;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
@@ -45,7 +44,6 @@ void InitTimerIcMode()
   TIM_IC_InitTypeDef hTimIcConfig = {0};
   hTimIcConfig.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
   hTimIcConfig.ICSelection = TIM_ICSELECTION_DIRECTTI;
-  hTimIcConfig.ICFilter = 0;
   HAL_TIM_IC_ConfigChannel(&hTim1, &hTimIcConfig, TIM_CHANNEL_4);
 
   HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
@@ -74,7 +72,6 @@ uint16_t prevValue = 0;
 uint32_t irMsg = 0;
 uint8_t bitIndex = 0;
 uint8_t command = 0;
-uint8_t address = 0;
 
 void processSignal(TIM_HandleTypeDef *htim)
 {
@@ -100,7 +97,7 @@ void processSignal(TIM_HandleTypeDef *htim)
 
   if (bitIndex >= 32)
   {
-    address = irMsg & 0xFF;
+    uint8_t address = irMsg & 0xFF;
     command = (irMsg >> 16) & 0xFF;
     bitIndex = 0;
     irMsg = 0;
