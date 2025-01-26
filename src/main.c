@@ -4,12 +4,14 @@
 TIM_HandleTypeDef hTim1 = {0};
 void InitTimerIcMode();
 void GPIO_PA11_Init();
+void GPIO_PA4_Init();
 
 int main()
 {
   HAL_Init();
 
   GPIO_PA11_Init();
+  GPIO_PA4_Init();
   InitTimerIcMode();
 
   while (1)
@@ -51,12 +53,6 @@ void InitTimerIcMode()
   HAL_TIM_IC_Start_IT(&hTim1, TIM_CHANNEL_4);
 }
 
-uint32_t prevValue = 0;
-uint32_t irMsg = 0;
-uint8_t bitIndex = 0;
-uint8_t command = 0;
-uint8_t address = 0;
-
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
@@ -65,23 +61,38 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   }
 }
 
+void GPIO_PA4_Init()
+{
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+uint16_t prevValue = 0;
+uint32_t irMsg = 0;
+uint8_t bitIndex = 0;
+uint8_t command = 0;
+uint8_t address = 0;
+
 void processSignal(TIM_HandleTypeDef *htim)
 {
-  uint32_t curValue = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+  uint16_t curValue = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
 
   uint16_t pulseWidth = (curValue > prevValue) ? curValue - prevValue : (0xFFFF - prevValue) + curValue;
   prevValue = curValue;
 
-  if (pulseWidth > 11475 && pulseWidth < 15525) // (9ms + 4.5ms) ± 15% -- start receiving
+  if (pulseWidth > 12825 && pulseWidth < 14175) // (9ms + 4.5ms) ± 5% — start receiving
   {
     bitIndex = 0;
     irMsg = 0;
   }
-  else if (pulseWidth > 956 && pulseWidth < 1293) //  (562.5μs + 562.5 μs) ± 15% -- received '0'
+  else if (pulseWidth > 1068 && pulseWidth < 1181) //  (562.5μs + 562.5 μs) ± 5% — received '0'
   {
     bitIndex++;
   }
-  else if (pulseWidth > 1910 && pulseWidth < 2585) // (562.5μs + 3x562.5 μs) ± 15% -- received '1'
+  else if (pulseWidth > 2137 && pulseWidth < 2362) // (562.5μs + 3*562.5 μs) ± 5% — received '1'
   {
     irMsg |= 1 << bitIndex;
     bitIndex++;
@@ -89,10 +100,20 @@ void processSignal(TIM_HandleTypeDef *htim)
 
   if (bitIndex >= 32)
   {
-    command = irMsg & 0xFF;
-    address = (irMsg >> 16) & 0xFF;
-
+    address = irMsg & 0xFF;
+    command = (irMsg >> 16) & 0xFF;
     bitIndex = 0;
     irMsg = 0;
+
+    if (command == 70)
+    {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    }
+    else if (command == 69)
+    {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+    }
+
+    // Successfully decoded. Now do reaction here.
   }
 }
