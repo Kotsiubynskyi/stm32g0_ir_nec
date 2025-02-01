@@ -94,7 +94,7 @@ void processSignal(TIM_HandleTypeDef *htim)
     bitIndex++;
   }
 
-  if (bitIndex >= 32)
+  if (bitIndex >= 32) {                           // Finish!
   {
     uint8_t address = fullMessage & 0xFF;
     command = (fullMessage >> 16) & 0xFF;
