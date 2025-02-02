@@ -36,8 +36,8 @@ void InitTimerIcMode()
   __HAL_RCC_TIM1_CLK_ENABLE();
 
   hTim1.Instance = TIM1;
-  hTim1.Init.Prescaler = 16 - 1;     //downclock timer to 1MHz
-  hTim1.Init.Period = 0xFFFF - 1;    //count to 16 bit number
+  hTim1.Init.Prescaler = 16 - 1;     // downclock timer to 1MHz
+  hTim1.Init.Period = 0xFFFF - 1;    // count to 16 bit number
 
   HAL_TIM_IC_Init(&hTim1);
   TIM_IC_InitTypeDef hTimIcConfig = {0};
@@ -79,12 +79,12 @@ void processSignal(TIM_HandleTypeDef *htim)
   uint16_t pulseWidth = (curValue > prevValue) ? curValue - prevValue : (0xFFFF - prevValue) + curValue;
   prevValue = curValue;
 
-  if (pulseWidth > 12825 && pulseWidth < 14175) // (9ms + 4.5ms) ± 5% — start receiving
+  if (pulseWidth > 12825 && pulseWidth < 14175)    // (9ms + 4.5ms) ± 5% — start receiving
   {
     bitIndex = 0;
     fullMessage = 0;
   }
-  else if (pulseWidth > 1068 && pulseWidth < 1181) //  (562.5μs + 562.5 μs) ± 5% — received '0'
+  else if (pulseWidth > 1068 && pulseWidth < 1181) // (562.5μs + 562.5 μs) ± 5% — received '0'
   {
     bitIndex++;
   }
