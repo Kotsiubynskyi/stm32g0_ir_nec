@@ -79,23 +79,23 @@ void processSignal(TIM_HandleTypeDef *htim)
   uint16_t pulseWidth = (curValue > prevValue) ? curValue - prevValue : (0xFFFF - prevValue) + curValue;
   prevValue = curValue;
 
-  if (pulseWidth > 12825 && pulseWidth < 14175) // (9ms + 4.5ms) ± 5% — start receiving
+  if (pulseWidth > 12825 && pulseWidth < 14175)         // (9ms + 4.5ms) ± 5% — start receiving
   {
     bitIndex = 0;
     fullMessage = 0;
   }
-  else if (pulseWidth > 1068 && pulseWidth < 1181) // (562.5μs + 562.5 μs) ± 5% — received '0'
+  else if (pulseWidth > 1068 && pulseWidth < 1181)      // (562.5μs + 562.5 μs) ± 5% — received '0'
   {
     bitIndex++;
   }
-  else if (pulseWidth > 2137 && pulseWidth < 2362) // (562.5μs + 3*562.5 μs) ± 5% — received '1'
+  else if (pulseWidth > 2137 && pulseWidth < 2362)      // (562.5μs + 3*562.5 μs) ± 5% — received '1'
   {
     fullMessage |= 1 << bitIndex;
     bitIndex++;
   }
 
-  if (bitIndex >= 32)
-  { // Finish!
+  if (bitIndex >= 32)                                   // Finish!
+  {
     {
       uint8_t address = fullMessage & 0xFF;
       command = (fullMessage >> 16) & 0xFF;
@@ -111,5 +111,4 @@ void processSignal(TIM_HandleTypeDef *htim)
       }
     }
   }
-  
 }
