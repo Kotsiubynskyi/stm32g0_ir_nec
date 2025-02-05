@@ -36,8 +36,8 @@ void InitTimerIcMode()
   __HAL_RCC_TIM1_CLK_ENABLE();
 
   hTim1.Instance = TIM1;
-  hTim1.Init.Prescaler = 16 - 1;     // downclock timer to 1MHz
-  hTim1.Init.Period = 0xFFFF - 1;    // count to 16 bit number
+  hTim1.Init.Prescaler = 16 - 1;  // downclock timer to 1MHz
+  hTim1.Init.Period = 0xFFFF - 1; // count to 16 bit number
 
   HAL_TIM_IC_Init(&hTim1);
   TIM_IC_InitTypeDef hTimIcConfig = {0};
@@ -79,7 +79,7 @@ void processSignal(TIM_HandleTypeDef *htim)
   uint16_t pulseWidth = (curValue > prevValue) ? curValue - prevValue : (0xFFFF - prevValue) + curValue;
   prevValue = curValue;
 
-  if (pulseWidth > 12825 && pulseWidth < 14175)    // (9ms + 4.5ms) ± 5% — start receiving
+  if (pulseWidth > 12825 && pulseWidth < 14175) // (9ms + 4.5ms) ± 5% — start receiving
   {
     bitIndex = 0;
     fullMessage = 0;
@@ -94,20 +94,21 @@ void processSignal(TIM_HandleTypeDef *htim)
     bitIndex++;
   }
 
-  if (bitIndex >= 32) {                           // Finish!
-  {
-    uint8_t address = fullMessage & 0xFF;
-    command = (fullMessage >> 16) & 0xFF;
-
-    // Successfully decoded. Now do reaction here.
-    if (command == 70)
+  if (bitIndex >= 32)
+  { // Finish!
     {
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    }
-    else if (command == 69)
-    {
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-    }
+      uint8_t address = fullMessage & 0xFF;
+      command = (fullMessage >> 16) & 0xFF;
 
+      // Successfully decoded. Now do reaction here.
+      if (command == 70)
+      {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+      }
+      else if (command == 69)
+      {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+      }
+    }
   }
 }
