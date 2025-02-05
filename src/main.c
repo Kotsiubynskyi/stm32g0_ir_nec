@@ -111,4 +111,5 @@ void processSignal(TIM_HandleTypeDef *htim)
       }
     }
   }
+  
 }
